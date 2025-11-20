@@ -1,0 +1,12 @@
+{
+  "name": "paas_app_backend",
+  "version": "1.0.0",
+  "description": "An API Testing Tool for users so that they can test there apis. This is the backend for this project",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
