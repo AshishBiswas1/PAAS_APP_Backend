@@ -41,17 +41,34 @@ exports.proxyRequest = catchAsync(async (req, res, next) => {
   const t0 = Date.now()
   const resp = await fetch(url, init)
   const t1 = Date.now()
-
-  const respText = await resp.text()
+  // Read and parse response body: prefer JSON when available, otherwise fall back to text
   const outHeaders = {}
   resp.headers.forEach((v, k) => { outHeaders[k] = v })
+
+  let parsedBody
+  const contentType = (resp.headers.get('content-type') || '').toLowerCase()
+  if (contentType.includes('application/json') || contentType.includes('+json')) {
+    try {
+      parsedBody = await resp.json()
+    } catch (e) {
+      // If JSON parsing fails unexpectedly, fall back to text
+      parsedBody = await resp.text()
+    }
+  } else {
+    const txt = await resp.text()
+    try {
+      parsedBody = JSON.parse(txt)
+    } catch (e) {
+      parsedBody = txt
+    }
+  }
 
   res.json({
     status: resp.status,
     statusText: resp.statusText,
     timeMs: t1 - t0,
     headers: outHeaders,
-    body: respText
+    body: parsedBody
   })
 })
 
