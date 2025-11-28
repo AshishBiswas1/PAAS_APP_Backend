@@ -39,3 +39,23 @@ exports.createUserCollection = catchAsync(async (req, res, next) => {
         data 
     });
 });
+
+exports.updateUserCollection = catchAsync(async (req, res, next) => {
+    const cid = req.params.cid;
+    const { title, description } = req.body || {};
+
+    if (!cid) return next(new AppError('Collection id is required', 400));
+    if (typeof title === 'undefined' && typeof description === 'undefined') return next(new AppError('No updatable fields provided', 400));
+
+    const supabase = getSupabase();
+
+    const updates = {};
+    if (typeof title !== 'undefined') updates.title = title;
+    if (typeof description !== 'undefined') updates.description = description;
+
+    const { data, error } = await supabase.from('collections').update(updates).eq('id', cid).select().maybeSingle();
+    if (error) return next(new AppError(error.message || 'Failed to update collection', 500));
+    if (!data) return next(new AppError('Collection not found', 404));
+
+    res.status(200).json({ status: 'success', data });
+});
