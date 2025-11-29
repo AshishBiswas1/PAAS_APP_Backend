@@ -18,5 +18,8 @@ router.route('/userCollection').post(collectionController.createUserCollection);
 router
   .route('/updateCollection/:cid')
   .patch(collectionController.updateUserCollection);
+router
+  .route('/deleteCollection/:cid')
+  .delete(collectionController.deleteUserCollection);
 
 module.exports = router;

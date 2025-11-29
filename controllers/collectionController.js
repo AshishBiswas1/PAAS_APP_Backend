@@ -59,3 +59,29 @@ exports.updateUserCollection = catchAsync(async (req, res, next) => {
 
     res.status(200).json({ status: 'success', data });
 });
+
+exports.deleteUserCollection = catchAsync(async (req, res, next) => {
+    const cid = req.params.cid;
+
+    if (!cid) return next(new AppError('Collection id is required', 400));
+
+    const supabase = getSupabase();
+
+    // Delete the collection (cascade will handle folders and APIs)
+    const { data, error } = await supabase
+        .from('collections')
+        .delete()
+        .eq('id', cid)
+        .eq('user_id', req.user.id)
+        .select()
+        .maybeSingle();
+
+    if (error) return next(new AppError(error.message || 'Failed to delete collection', 500));
+    if (!data) return next(new AppError('Collection not found or unauthorized', 404));
+
+    res.status(200).json({ 
+        status: 'success', 
+        message: 'Collection deleted successfully',
+        data 
+    });
+});
