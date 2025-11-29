@@ -18,21 +18,26 @@ exports.saveApi = catchAsync(async (req, res, next) => {
     return next(new AppError('Please provide the api URL!', 400));
   }
 
+  // Validate that required fields are present
+  if (!method) {
+    return next(new AppError('Please provide the HTTP method!', 400));
+  }
+
   const supabase = getSupabase();
 
   const { data, error } = await supabase
     .from('api')
     .insert([
       {
-        folder_id: f_id,
+        folder_id: f_id || null,
         user_id: req.user.id,
         url,
-        headers,
-        body,
+        headers: headers || {},
+        body: body || '',
         method,
-        response,
-        res_statuscode: res_status,
-        statusmessage
+        response: response || '',
+        res_statuscode: res_status || 0,
+        statusmessage: statusmessage || ''
       }
     ])
     .select()
